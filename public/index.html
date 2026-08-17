@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALL ON BED — BDE EURECOM</title>
+  <meta name="description" content="BDE ALL ON BED — Enquête secrète de rentrée EURECOM 2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ── TOP NAV ── -->
+  <header class="nav" id="topNav">
+    <a class="nav-logo" id="logoBtn">
+      <img src="assets/logo.png" alt="ALL ON BED">
+    </a>
+
+    <div class="nav-right">
+      <button class="icon-btn" id="audioToggleBtn"><i class="fa-solid fa-volume-high" id="audioIcon"></i></button>
+      <button class="ghost-btn" id="adminBtn"><i class="fa-solid fa-shield"></i></button>
+      <div id="userAuthContainer">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════
+       MAIN CORKBOARD VIEW
+  ═══════════════════════════════════════════ -->
+  <section class="board-wrap" id="viewBoard">
+    <div class="board" id="corkboard">
+      <!-- SVG red threads -->
+      <svg class="board-threads" id="boardThreads"></svg>
+
+      <!-- Center Logo & Master Password -->
+      <div class="center-master" id="centerMaster">
+        <img src="assets/logo.png" alt="Logo" class="center-logo" id="centerLogo">
+
+        <div class="master-form">
+          <div class="master-inputs" id="masterInputsMain" title="Cliquez pour déverrouiller le code final">
+            <input type="text" maxlength="1" class="mslot main-mslot" data-index="0" readonly>
+            <input type="text" maxlength="1" class="mslot main-mslot" data-index="1" readonly>
+            <input type="text" maxlength="1" class="mslot main-mslot" data-index="2" readonly>
+            <input type="text" maxlength="1" class="mslot main-mslot" data-index="3" readonly>
+            <input type="text" maxlength="1" class="mslot main-mslot" data-index="4" readonly>
+            <input type="text" maxlength="1" class="mslot main-mslot" data-index="5" readonly>
+            <input type="text" maxlength="1" class="mslot main-mslot" data-index="6" readonly>
+            <input type="text" maxlength="1" class="mslot main-mslot" data-index="7" readonly>
+            <input type="text" maxlength="1" class="mslot main-mslot" data-index="8" readonly>
+          </div>
+          <button id="openMasterBtn" style="display:none;"></button>
+        </div>
+      </div>
+
+      <!-- Leaderboard Post-it -->
+      <div class="postit leaderboard-postit" id="leaderboardPostit">
+        <div class="pin pin-red"></div>
+        <h3>TOP AGENTS</h3>
+        <ul id="lbPostitList"></ul>
+        <div class="lb-my-pos" id="lbPostitMe"></div>
+      </div>
+
+      <!-- Dossiers will be injected here -->
+      <div id="boardNodes"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       VIEW 2 — LE PREZ TABLEAU
+  ═══════════════════════════════════════════ -->
+  <section class="view-hidden" id="viewPrez" style="display:none; width:100%; min-height:100vh; background:#000; position:relative; padding-top: 60px;">
+    <button class="close-board-btn" id="closePrezBtn" style="position:fixed; top: 80px; right: 20px; z-index:1000;"><i class="fa-solid fa-arrow-left"></i> Retour au QG</button>
+    <div style="display:flex; justify-content:center; align-items:center; height:100vh;">
+      <h1 style="font-family: 'Special Elite', monospace; font-size: 60px; color: #fff; letter-spacing: 5px;">LE PREZ</h1>
+    </div>
+  </section>
+
+
+
+  <!-- ═══════════════════════════════════════════
+       MODALS
+  ═══════════════════════════════════════════ -->
+
+  <!-- Auth -->
+  <div class="modal-bg" id="authModal">
+    <div class="modal-box">
+      <button class="modal-close" data-close="authModal"><i class="fa-solid fa-xmark"></i></button>
+      <img src="assets/logo.png" alt="ALL ON BED" class="modal-logo">
+      <h2 id="authModalTitle">Identification</h2>
+      <div class="tab-row">
+        <button class="tab active" id="tabReg">Inscription</button>
+        <button class="tab" id="tabLog">Connexion</button>
+      </div>
+
+      <form id="regForm">
+        <div class="row-2">
+          <div class="field"><label>Nom</label><input id="regNom" type="text" placeholder="Dupont" required></div>
+          <div class="field"><label>Prénom</label><input id="regPrenom" type="text" placeholder="Lucas" required></div>
+        </div>
+        <div class="field"><label>Mot de passe</label><input id="regPass" type="password" required minlength="4"></div>
+        <div class="field"><label>Confirmation</label><input id="regConfirm" type="password" required minlength="4"></div>
+        <button class="submit-btn" type="submit">Créer mon dossier</button>
+      </form>
+
+      <form id="logForm" style="display:none">
+        <div class="row-2">
+          <div class="field"><label>Nom</label><input id="logNom" type="text" required></div>
+          <div class="field"><label>Prénom</label><input id="logPrenom" type="text"></div>
+        </div>
+        <div class="field"><label>Mot de passe</label><input id="logPass" type="password" required></div>
+        <button class="submit-btn" type="submit">Se connecter</button>
+      </form>
+
+      <p class="feedback" id="authFeedback"></p>
+    </div>
+  </div>
+
+  <!-- Dossier -->
+  <div class="modal-bg" id="dossierModal">
+    <div class="modal-box dossier-box">
+      <button class="modal-close" data-close="dossierModal"><i class="fa-solid fa-xmark"></i></button>
+      <div class="dos-stamp" id="dosStamp">CLASSIFIÉ</div>
+      <div class="dos-num" id="dosNum">DOSSIER #01</div>
+      <h2 class="dos-title" id="dosTitle">AVIS DE DISPARITION</h2>
+
+      <!-- Locked -->
+      <div id="stateSealed" class="dos-state">
+        <i class="fa-solid fa-lock dos-icon"></i>
+        <p>Ce dossier n'a pas encore été transmis. Revenez lors de la prochaine publication.</p>
+      </div>
+
+      <!-- Password -->
+      <div id="statePass" class="dos-state" style="display:none">
+        <form id="unlockForm">
+          <div class="field">
+            <label>Code d'accès</label>
+            <div class="input-row">
+              <input id="dosPassInput" type="text" autocomplete="off" required>
+              <button class="submit-btn compact" type="submit">Déverrouiller</button>
+            </div>
+          </div>
+        </form>
+        <p class="feedback" id="dosFeedback"></p>
+      </div>
+
+      <!-- Unlocked -->
+      <div id="stateOpen" class="dos-state" style="display:none">
+        <div class="dos-badge-ok"><i class="fa-solid fa-check"></i> Indice déchiffré</div>
+        <div class="dos-content" id="dosContent"></div>
+      </div>
+      <div id="prezContainer" class="dos-state" style="display:none; text-align:center;"></div>
+    </div>
+  </div>
+
+  <!-- Master Code -->
+  <div class="modal-bg" id="masterModal">
+    <div class="modal-box master-box">
+      <button class="modal-close" data-close="masterModal"><i class="fa-solid fa-xmark"></i></button>
+      <h2>Code final — 9 lettres</h2>
+      <p class="modal-sub">Reconstituez le mot de passe à partir des 9 indices collectés.</p>
+      <div class="master-slots" id="masterSlots">
+        <input class="mslot" maxlength="1" data-i="0">
+        <input class="mslot" maxlength="1" data-i="1">
+        <input class="mslot" maxlength="1" data-i="2">
+        <input class="mslot" maxlength="1" data-i="3">
+        <input class="mslot" maxlength="1" data-i="4">
+        <input class="mslot" maxlength="1" data-i="5">
+        <input class="mslot" maxlength="1" data-i="6">
+        <input class="mslot" maxlength="1" data-i="7">
+        <input class="mslot" maxlength="1" data-i="8">
+      </div>
+      <button class="submit-btn" id="masterSubmitBtn">Valider</button>
+      <p class="feedback" id="masterFeedback"></p>
+      <div id="victoryBox" style="display:none">
+        <div class="victory-icon">🏆</div>
+        <h3 id="victoryTitle">LE BDE EST LIBÉRÉ !</h3>
+        <p id="victoryMsg"></p>
+        <span class="victory-tag">ACCÈS VIP ACCORDÉ</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaderboard -->
+  <div class="modal-bg" id="lbModal">
+    <div class="modal-box wide-box">
+      <button class="modal-close" data-close="lbModal"><i class="fa-solid fa-xmark"></i></button>
+      <h2>Classement</h2>
+      <table class="lb-table">
+        <thead><tr><th>#</th><th>Agent</th><th>Dossiers</th><th>Code final</th></tr></thead>
+        <tbody id="lbBody"><tr><td colspan="4">Chargement…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Admin -->
+  <div class="modal-bg" id="adminModal">
+    <div class="modal-box wide-box">
+      <button class="modal-close" data-close="adminModal"><i class="fa-solid fa-xmark"></i></button>
+      <h2>Poste de commande — BDE</h2>
+      <div class="kpi-row">
+        <div class="kpi"><span id="kpiS">0</span><small>Inscrits</small></div>
+        <div class="kpi"><span id="kpiR">0</span><small>Dossiers résolus</small></div>
+        <div class="kpi accent"><span id="kpiM">0</span><small>Code final trouvé</small></div>
+      </div>
+      <div class="tab-row">
+        <button class="tab active" id="aTabD">Dossiers</button>
+        <button class="tab" id="aTabS">Étudiants</button>
+        <button class="tab" id="aTabM">Code maître</button>
+      </div>
+      <div id="aSecD">
+        <div id="adminDossiersList"></div>
+      </div>
+      <div id="aSecS" style="display:none">
+        <input id="sSearch" class="search-inp" placeholder="Rechercher…">
+        <table class="lb-table"><thead><tr><th>ID</th><th>Agent</th><th>Inscription</th><th>Indices</th><th>Code</th></tr></thead>
+        <tbody id="adminStudentsList"></tbody></table>
+      </div>
+      <div id="aSecM" style="display:none">
+        <form id="adminMasterForm">
+          <div class="field"><label>Nouveau code (9 lettres)</label><input id="aMasterCode" maxlength="9" style="text-transform:uppercase;letter-spacing:4px"></div>
+          <div class="field"><label>Titre victoire</label><input id="aMasterTitle"></div>
+          <div class="field"><label>Message victoire</label><textarea id="aMasterMsg" rows="3"></textarea></div>
+          <button class="submit-btn" type="submit">Enregistrer</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/audio.js"></script>
+  <script src="js/corridor.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
