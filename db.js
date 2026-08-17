@@ -4,7 +4,14 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 
 let sqlDb = null;
-const dbPath = path.join(__dirname, 'allonbed.sqlite');
+
+// Détection de l'hébergeur (Hostinger utilise souvent 'hbuilds' dans le chemin)
+const isHostinger = __dirname.includes('hbuilds');
+// Si on est sur Hostinger, on sauvegarde la DB dans le dossier PARENT (hors du dossier GitHub) pour qu'elle survive aux mises à jour.
+// Sinon (en local sur ton PC), on la garde dans le dossier actuel.
+const dbPath = isHostinger 
+  ? path.join(__dirname, '..', 'allonbed_persistent.sqlite') 
+  : path.join(__dirname, 'allonbed.sqlite');
 
 function saveDb() {
   if (sqlDb) {
