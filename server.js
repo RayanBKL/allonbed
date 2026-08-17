@@ -5,7 +5,7 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { db, hashPassword } = require('./db');
+const { db, hashPassword, initDb } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -621,8 +621,12 @@ app.use((req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-  console.log(`♠ ALL ON BED - BUREAU D'ENQUÊTE & TABLEAU AUX FILS ROUGES ♠`);
-  console.log(`Port d'écoute : http://localhost:${PORT}`);
-  console.log(`Compte Admin BDE : 'BDE' / 'Admin' - Mot de passe : 'ALLONBED2026!'`);
+initDb().then(() => {
+  app.listen(PORT, () => {
+    console.log(`♠ ALL ON BED - BUREAU D'ENQUÊTE & TABLEAU AUX FILS ROUGES ♠`);
+    console.log(`Port d'écoute : http://localhost:${PORT}`);
+    console.log(`Compte Admin BDE : 'BDE' / 'Admin' - Mot de passe : 'ALLONBED2026!'`);
+  });
+}).catch(err => {
+  console.error("Failed to initialize database:", err);
 });
