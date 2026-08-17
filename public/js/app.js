@@ -338,7 +338,11 @@ class App {
 
       this.currentEnigma.isUnlocked = true;
       this.currentEnigma.clueContent = res.clue.content;
+
+      // Refresh user state (unlocked count, etc.)
+      await this.fetchMe();
       await this.loadEnigmas();
+      await this.renderLeaderboardPostit();
 
       setTimeout(() => this.openDossier(this.currentEnigma), 800);
     } catch (err) {
@@ -409,6 +413,11 @@ class App {
       document.getElementById('victoryTitle').textContent = res.title;
       document.getElementById('victoryMsg').textContent = res.rewardMessage;
       document.getElementById('victoryBox').style.display = 'block';
+
+      // Refresh user state so leaderboard shows MAÎTRE / 9/9
+      await this.fetchMe();
+      await this.loadEnigmas();
+      await this.renderLeaderboardPostit();
     } catch (err) {
       window.soundFX.playError();
       fb.className = 'feedback err';

@@ -25,7 +25,10 @@ function wrapPrepare(sql) {
     get: (...args) => {
       const stmt = sqlDb.prepare(sql);
       try {
-        if (stmt.step(args)) {
+        if (args.length > 0) {
+          stmt.bind(args);
+        }
+        if (stmt.step()) {
           return stmt.getAsObject();
         }
         return undefined;
@@ -37,7 +40,9 @@ function wrapPrepare(sql) {
       const stmt = sqlDb.prepare(sql);
       const results = [];
       try {
-        stmt.bind(args);
+        if (args.length > 0) {
+          stmt.bind(args);
+        }
         while (stmt.step()) {
           results.push(stmt.getAsObject());
         }
@@ -49,7 +54,14 @@ function wrapPrepare(sql) {
     run: (...args) => {
       sqlDb.run(sql, args);
       saveDb();
-      return { changes: 1 };
+      const rowIdResult = sqlDb.exec("SELECT last_insert_rowid()");
+      const lastInsertRowid = (rowIdResult && rowIdResult.length > 0 && rowIdResult[0].values.length > 0)
+        ? rowIdResult[0].values[0][0]
+        : 0;
+      return {
+        changes: sqlDb.getRowsModified(),
+        lastInsertRowid
+      };
     }
   };
 }
