@@ -211,6 +211,10 @@ async function initDb() {
     }
   }
 
+  // Force update dossier 1 password to CACALEX (in case DB was seeded with old password)
+  const cacaHash = hashPassword('CACALEX');
+  dbWrapper.prepare("UPDATE enigmas SET password_hash = ? WHERE node_number = 1").run(cacaHash);
+
   // Master Puzzle 9-Letter Code: 'WEAREBACK'
   const masterExists = dbWrapper.prepare('SELECT id FROM master_puzzle WHERE id = 1').get();
   const masterHash = hashPassword('WEAREBACK');
